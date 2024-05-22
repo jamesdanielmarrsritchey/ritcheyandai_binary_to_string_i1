@@ -1,0 +1,207 @@
+jamesdanielmarrsritchey: Using C++, write a program which converts a value to a binary representation. The value is passed as a commandline argument. Commandline arguments all have a prefix that starts with "--". The program should return the binary representation. If there is no value given, the program should return false, and exit 1.
+
+GitHub Copilot: Here is a simple C++ program that fulfills your requirements. It uses the `std::bitset` to convert the integer to binary. The program checks if the command line argument is provided and if it starts with "--". If not, it returns false and exits with status 1.
+
+```cpp
+#include <iostream>
+#include <bitset>
+#include <string>
+
+int main(int argc, char *argv[]) {
+    if(argc != 2 || std::string(argv[1]).substr(0, 2) != "--") {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    std::string arg = std::string(argv[1]).substr(2);
+    int value = std::stoi(arg);
+    std::bitset<32> binary(value);
+
+    std::cout << binary << std::endl;
+
+    return 0;
+}
+```
+
+To compile and run this program, you can use the following commands in the terminal:
+
+```bash
+g++ -o binary_converter binary_converter.cpp
+./binary_converter --123
+```
+
+This will output the binary representation of 123.
+
+jamesdanielmarrsritchey: The commandline argument should be formatted as "--string" followed by a space, and then the value.
+
+GitHub Copilot: I see, you want the command line argument to be in the format `--string value`. Here's how you can modify the program to handle this:
+
+```cpp
+#include <iostream>
+#include <bitset>
+#include <string>
+
+int main(int argc, char *argv[]) {
+    if(argc != 3 || std::string(argv[1]).substr(0, 2) != "--") {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    int value = std::stoi(argv[2]);
+    std::bitset<32> binary(value);
+
+    std::cout << binary << std::endl;
+
+    return 0;
+}
+```
+
+Now, you can run the program with the command line argument in the format `--string value`, like this:
+
+```bash
+g++ -o binary_converter binary_converter.cpp
+./binary_converter --string 123
+```
+
+This will output the binary representation of 123.
+
+jamesdanielmarrsritchey: When run, this gives the error "what():  stoi".
+
+GitHub Copilot: The error message "what(): stoi" typically means that the `std::stoi` function has failed to convert the string to an integer. This can happen if the string does not contain a valid integer representation.
+
+To handle this, you can add a try-catch block around the `std::stoi` call to catch and handle the exception. Here's how you can modify the code:
+
+```cpp
+#include <iostream>
+#include <bitset>
+#include <string>
+
+int main(int argc, char *argv[]) {
+    if(argc != 3 || std::string(argv[1]).substr(0, 2) != "--") {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    try {
+        int value = std::stoi(argv[2]);
+        std::bitset<32> binary(value);
+
+        std::cout << binary << std::endl;
+    } catch (std::invalid_argument const &e) {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+```
+
+Now, if the second argument is not a valid integer, the program will catch the exception, print "false", and exit with status 1.
+
+jamesdanielmarrsritchey: The value shouldn't be an integer, it should be a string.
+
+GitHub Copilot: I see, you want to convert a string to its binary representation, where each character in the string is represented by its ASCII value in binary. Here's how you can modify the program to handle this:
+
+```cpp
+#include <iostream>
+#include <bitset>
+#include <string>
+
+int main(int argc, char *argv[]) {
+    if(argc != 3 || std::string(argv[1]).substr(0, 2) != "--") {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    std::string str = argv[2];
+    for (char& _char : str) {
+        std::bitset<8> binary(_char);
+        std::cout << binary;
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
+```
+
+Now, you can run the program with the command line argument in the format `--string value`, like this:
+
+```bash
+g++ -o binary_converter binary_converter.cpp
+./binary_converter --string Hello
+```
+
+This will output the binary representation of the string "Hello".
+
+jamesdanielmarrsritchey: If the string is empty, the program should return false, and exit 1.
+
+GitHub Copilot: You can add a check to see if the string is empty. If it is, the program will print "false" and exit with status 1. Here's how you can modify the code:
+
+```cpp
+#include <iostream>
+#include <bitset>
+#include <string>
+
+int main(int argc, char *argv[]) {
+    if(argc != 3 || std::string(argv[1]).substr(0, 2) != "--") {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    std::string str = argv[2];
+    if(str.empty()) {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    for (char& _char : str) {
+        std::bitset<8> binary(_char);
+        std::cout << binary;
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
+```
+
+Now, if the string is empty, the program will print "false" and exit with status 1.
+
+jamesdanielmarrsritchey: Using C++, write a program for converting the output back.
+
+GitHub Copilot: To convert the binary representation back to a string, you can read the binary string in chunks of 8 bits (since each character is represented by 8 bits), convert each chunk to an integer, and then convert that integer to a character. Here's a simple C++ program that does this:
+
+```cpp
+#include <iostream>
+#include <bitset>
+#include <string>
+
+int main(int argc, char *argv[]) {
+    if(argc != 3 || std::string(argv[1]).substr(0, 2) != "--") {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    std::string binary = argv[2];
+    if(binary.empty() || binary.size() % 8 != 0) {
+        std::cout << "false" << std::endl;
+        return 1;
+    }
+
+    for (size_t i = 0; i < binary.size(); i += 8) {
+        std::bitset<8> bits(binary.substr(i, 8));
+        std::cout << static_cast<char>(bits.to_ulong());
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
+```
+
+Now, you can run the program with the command line argument in the format `--string binary`, like this:
+
+```bash
+g++ -o binary_to_string binary_to_string.cpp
+./binary_to_string --string 0100100001100101011011000110110001101111
+```
+
+This will output the string "Hello", which is the original string represented by the binary input.
